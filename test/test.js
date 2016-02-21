@@ -1,10 +1,10 @@
 var assert = require('assert')
-var {createValue, record} = require('../src/afflatus')
+var {createValue, record, autorun, getStats} = require('../src/afflatus')
 
 describe('afflatus', () => {
   it('test', () => {
     const foo = createValue('foo')
-    record(() => console.log(foo.get()))
+    autorun(() => console.log(foo.get()))
     foo.set('foo2')
     foo.set('foo3')
   })

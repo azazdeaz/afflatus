@@ -6,12 +6,14 @@ function reportUse(id) {
 }
 
 function reportChange(id) {
+  const handlers = []
   listeners.forEach((dependencies, handler) => {
     if (dependencies.has(id)) {
-      // listeners.delete(handler)
-      handler()
+      listeners.delete(handler)
+      handlers.push(handler)
     }
   })
+  handlers.forEach(handler => handler())
 }
 
 export function createValue(value) {
@@ -38,6 +40,15 @@ export function record(fn, handler) {
   listeners.set(handler, dependencies)
 }
 
+export function autorun(fn) {
+  const run = () => {
+    console.log('handler running')
+    console.log(getStats())
+    record(fn, run)
+  }
+  run()
+}
+
 export function createComputedValue(fn) {
   const id = Symbol()
   let inited = false
@@ -52,9 +63,14 @@ export function createComputedValue(fn) {
 
   return function get() {
     if (!inited) {
-      record(update)
+      inited = true
+      autorun(update)
     }
     reportUse()
     return value
   }
+}
+
+export function getStats() {
+  return {listeners: listeners.size, runningListeners: runningListeners.size}
 }
