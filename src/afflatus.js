@@ -42,8 +42,6 @@ export function record(fn, handler) {
 
 export function autorun(fn) {
   const run = () => {
-    console.log('handler running')
-    console.log(getStats())
     record(fn, run)
   }
   run()
@@ -66,11 +64,19 @@ export function createComputedValue(fn) {
       inited = true
       autorun(update)
     }
-    reportUse()
+    reportUse(id)
     return value
   }
 }
 
 export function getStats() {
   return {listeners: listeners.size, runningListeners: runningListeners.size}
+}
+
+export function createModel({type, values, computedValues}) {
+  return () => {
+    const item = {type}
+
+    return item
+  }
 }
