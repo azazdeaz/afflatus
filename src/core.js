@@ -1,11 +1,11 @@
 const listeners = new Map()
 const runningListeners = new Map()
 
-function reportUse(id) {
+export function reportUse(id) {
   runningListeners.forEach(dependencies => dependencies.add(id))
 }
 
-function reportChange(id) {
+export function reportChange(id) {
   const handlers = []
   listeners.forEach((dependencies, handler) => {
     if (dependencies.has(id)) {
@@ -71,12 +71,4 @@ export function createComputedValue(fn) {
 
 export function getStats() {
   return {listeners: listeners.size, runningListeners: runningListeners.size}
-}
-
-export function createModel({type, values, computedValues}) {
-  return () => {
-    const item = {type}
-
-    return item
-  }
 }
