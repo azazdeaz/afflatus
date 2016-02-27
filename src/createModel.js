@@ -8,21 +8,25 @@ function iterate(obj={}, cb) {
   })
 }
 
+function getDefaultValue(seed, name, descriptor) {
+  return seed.hasOwnProperty(name)
+    ? seed[name]
+    : descriptor.defaultValue
+}
+
 export function createModel({
   simpleValues,
   computedValues,
   modelValues,
   arrayValues,
+  untrackedValues,
 }) {
   return {
     create(seed={}) {
       const item = {}
 
       iterate(simpleValues, (descriptor, name) => {
-        const defaultValue = seed.hasOwnProperty(name)
-          ? seed[name]
-          : descriptor.defaultValue
-          console.log(defaultValue, 'defaultValue')
+        const defaultValue = getDefaultValue(seed, name, descriptor)
         const value = createValue(defaultValue)
         Object.defineProperty(item, name, {
           get: value.get,
@@ -43,15 +47,20 @@ export function createModel({
         })
       })
 
-      iterate(arrayValues, ({model}, name) => {
-        const seed = model
-          ? seed[name]
-          : seed[name].map(_seed => model.create(_seed))
-        const value = createArray(seed)
+      iterate(arrayValues, (descriptor, name) => {
+        const defaultValue = getDefaultValue(seed, name, descriptor) || []
+        const arraySeed = descriptor.model
+          ? defaultValue.map(_seed => descriptor.model.create(_seed))
+          : defaultValue
+        const value = createArray(arraySeed)
 
         Object.defineProperty(item, name, {
-          get() {return value},
+          get: value.get,
         })
+      })
+
+      iterate(untrackedValues, (value, name) => {
+        item[name] = value
       })
 
       return item

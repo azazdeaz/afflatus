@@ -54,11 +54,19 @@ describe('afflatus', () => {
       },
       computedValues: {
         foofoo() {return this.foo * 2}
+      },
+      arrayValues: {
+        bar: {defaultValue: [1,2,3]}
+      },
+      untrackedValues: {
+        qux: () => 8
       }
     })
     const item = model.create()
     expect(item.foo).to.equal(1)
     expect(item.foofoo).to.equal(2)
+    expect(item.bar.getLength()).to.equal(3)
+    expect(item.qux()).to.equal(8)
 
     const spy = chai.spy()
     autorun(() => spy(item.foofoo))
