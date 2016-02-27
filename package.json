@@ -2,7 +2,7 @@
   "name": "afflatus",
   "version": "0.1.4",
   "description": "organise your inline styles flexible and forkable",
-  "main": "lib/afflatus.js",
+  "main": "lib",
   "scripts": {
     "lib": "rm -rf lib && babel ./src --out-dir lib  --source-maps --source-maps",
     "test": "mocha --compilers js:babel/register",
