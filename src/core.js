@@ -69,6 +69,11 @@ export function createComputedValue(fn) {
   }
 }
 
+export function transaction(fn) {
+  //TODO
+  return fn()
+}
+
 export function getStats() {
   return {listeners: listeners.size, runningListeners: runningListeners.size}
 }
