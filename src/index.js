@@ -1,4 +1,5 @@
 export {createModel} from './createModel'
 export {createArray} from './createArray'
 export {patchReact} from './patchReact'
+export {serialise} from './serialise'
 export * from './core'

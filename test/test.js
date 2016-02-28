@@ -9,9 +9,11 @@ var {
   createArray,
   createComputedValue,
   createModel,
+  serialise,
   record,
   autorun,
-  getStats
+  getStats,
+  IS_MODEL,
 } = require('../src')
 
 describe('afflatus', () => {
@@ -48,6 +50,11 @@ describe('afflatus', () => {
   })
 
   it('createModel', () => {
+    const model2 = createModel({
+      simpleValues: {
+        tux: {defaultValue: 25}
+      }
+    })
     const model = createModel({
       simpleValues: {
         foo: {defaultValue: 1}
@@ -57,6 +64,9 @@ describe('afflatus', () => {
       },
       arrayValues: {
         bar: {defaultValue: [1,2,3]}
+      },
+      modelValues: {
+        fux: {model: model2}
       },
       untrackedValues: {
         qux: () => 8
@@ -73,6 +83,15 @@ describe('afflatus', () => {
     expect(spy).to.have.been.called.with(2)
     item.foo = 2
     expect(spy).to.have.been.called.with(4)
+
+    expect(Object.keys(item)).to.have.members(['foo', 'bar', 'fux'])
+
+    item.bar.push(4)
+    const seed = serialise(item)
+    console.log(seed)
+    const seed2 = serialise(model.create(seed))
+    console.log(seed2)
+    expect(seed).to.deep.equal(seed2)
   })
 
   it('test', () => {

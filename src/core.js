@@ -1,6 +1,8 @@
 const listeners = new Map()
 const runningListeners = new Map()
 
+export const IS_MODEL = 'isModel'
+
 export function reportUse(id) {
   runningListeners.forEach(dependencies => dependencies.add(id))
 }
