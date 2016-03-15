@@ -3,6 +3,9 @@ const runningListeners = new Map()
 
 export const IS_MODEL = 'isModel'
 
+export const isPrimitiveModelType = type =>
+  !type || (/^[a-z]/).test(type)
+
 export function reportUse(id) {
   runningListeners.forEach(dependencies => dependencies.add(id))
 }
@@ -47,6 +50,13 @@ export function autorun(fn) {
     record(fn, run)
   }
   run()
+  //return a dispose method
+  return () => disposeHandler(run)
+}
+
+export function disposeHandler(handler) {
+  runningListeners.delete(handler)
+  listeners.delete(handler)
 }
 
 export function createComputedValue(fn) {

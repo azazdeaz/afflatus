@@ -1,27 +1,28 @@
-import {record} from './core'
+import {record, disposeHandler} from './core'
 
-export const patchReact = computers => Component => {
+export const patchReact = Component => {
   const originalRender = Component.prototype.render
-  const originalComponentWillMount = Component.prototype.componentWillMount
+  const originalComponentWillUnmount = Component.prototype.componentWillUnmount
 
   Component.prototype.render = function () {
+    console.log(`[afflatus]: render `, Component.displayName)
+
+    if (!this.__handleAfflatusChange) {
+      this.__handleAfflatusChange = () => this.forceUpdate()
+    }
+
     let result
     record(
       () => result = originalRender.call(this),
-      () => this.forceUpdate()
+      this.__handleAfflatusChange
     )
     return result
   }
 
-  Component.componentWillMount.render = function (...args) {
-    Object.keys(computers).forEach(key => {
-      Object.defineProperty(Component.prototype, key, {
-        get: createComputedValue(computers[key].bind(this))
-      })
-    })
-
-    originalComponentWillMount.apply(this, args)
+  Component.prototype.componentWillUnount = function (...args) {
+    disposeHandler(this.__handleAfflatusChange)
+    originalComponentWillUnmount.apply(this, args)
   }
-  
+
   return Component
 }

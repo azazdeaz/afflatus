@@ -9,6 +9,7 @@ export function serialise(rootItem) {
   const referenceList = []
   let nextId = 1
   dry(rootItem)
+  dryList[0].type = rootItem.type
   return dryList
 
   function dry(item) {
@@ -19,7 +20,7 @@ export function serialise(rootItem) {
     referenceList.push(item)
 
     forEach(item, (value, key) => {
-      if (value[IS_MODEL]) {
+      if (value && value[IS_MODEL]) {
         const index = referenceList.indexOf(value)
         if (index >= 0) {
           seed[key] = dryList[index].$id
@@ -30,7 +31,7 @@ export function serialise(rootItem) {
       }
       else if (value instanceof Array) {
         seed[key] = value.map(childItem => (
-          childItem[IS_MODEL]
+          (childItem && childItem[IS_MODEL])
             ? dry(childItem)
             : childItem
         ))

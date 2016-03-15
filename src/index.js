@@ -1,5 +1,7 @@
+export {defineModel} from './defineModel'
 export {createModel} from './createModel'
 export {createArray} from './createArray'
-export {patchReact} from './patchReact'
+export {patchReact as afflatus} from './patchReact'
 export {serialise} from './serialise'
+export {deserialise} from './deserialise'
 export * from './core'

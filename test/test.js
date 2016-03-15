@@ -9,7 +9,9 @@ var {
   createArray,
   createComputedValue,
   createModel,
+  defineModel,
   serialise,
+  deserialise,
   record,
   autorun,
   getStats,
@@ -37,7 +39,7 @@ describe('afflatus', () => {
   })
 
   it('arrays', () => {
-    const foo = createArray([1,2,3])
+    const foo = createArray('number', [1,2,3])
     const spyLength = chai.spy()
     const spyValue = chai.spy()
     autorun(() => spyLength(foo.get().getLength()))
@@ -50,14 +52,17 @@ describe('afflatus', () => {
   })
 
   it('createModel', () => {
-    const model2 = createModel({
+    defineModel({
+      type: 'Foo',
       simpleValues: {
         tux: {defaultValue: 25}
       }
     })
-    const model = createModel({
+    defineModel({
+      type: 'Bar',
       simpleValues: {
-        foo: {defaultValue: 1}
+        foo: {defaultValue: 1},
+        fux: {type: 'Foo'},
       },
       computedValues: {
         foofoo() {return this.foo * 2}
@@ -65,18 +70,13 @@ describe('afflatus', () => {
       arrayValues: {
         bar: {defaultValue: [1,2,3]}
       },
-      modelValues: {
-        fux: {model: model2}
-      },
-      untrackedValues: {
-        qux: () => 8
-      }
     })
-    const item = model.create()
+    const item = createModel('Bar')
     expect(item.foo).to.equal(1)
     expect(item.foofoo).to.equal(2)
+    expect(item.fux).to.be.an('object')
+    expect(item.fux.tux).to.equal(25)
     expect(item.bar.getLength()).to.equal(3)
-    expect(item.qux()).to.equal(8)
 
     const spy = chai.spy()
     autorun(() => spy(item.foofoo))
@@ -88,24 +88,9 @@ describe('afflatus', () => {
 
     item.bar.push(4)
     const seed = serialise(item)
-    console.log(seed)
-    const seed2 = serialise(model.create(seed))
-    console.log(seed2)
+    console.log('seed', seed)
+    const seed2 = serialise(deserialise(seed))
+    console.log('seed2', seed2)
     expect(seed).to.deep.equal(seed2)
-  })
-
-  it('test', () => {
-    const foo = createValue('foo')
-    const foofoo = createComputedValue(() => foo.get() + foo.get())
-    autorun(() => console.log(foo.get()))
-    autorun(() => console.log(foofoo()))
-    foo.set('foo2')
-    foo.set('foo3')
-    foo.set('foo4')
-  })
-  it('createArray', () => {
-    const foo = createArray([1,2,3])
-    autorun(() => console.log(foo.get().length, foo.get().slice()))
-    foo.get().push(4)
   })
 })
