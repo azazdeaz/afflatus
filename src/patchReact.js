@@ -1,11 +1,22 @@
+import React from 'react'
 import {record, disposeHandler} from './core'
 
 export const patchReact = Component => {
+  //wrap function components
+  // if (!(Component instanceof React.Component)) {
+  //   const renderer = Component
+  //   Component = class AfflatusFuncCompWrapper extends React.Component {
+  //     render() {
+  //       return renderer(this.props)
+  //     }
+  //   }
+  // }
+
   const originalRender = Component.prototype.render
   const originalComponentWillUnmount = Component.prototype.componentWillUnmount
 
   Component.prototype.render = function () {
-    console.log(`[afflatus]: render `, Component.displayName)
+    console.log(`[afflatus]: render `, Component.name)
 
     if (!this.__handleAfflatusChange) {
       this.__handleAfflatusChange = () => this.forceUpdate()

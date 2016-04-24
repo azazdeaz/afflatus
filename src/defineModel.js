@@ -9,6 +9,8 @@ import {createModel} from './createModel'
 import {factories} from './factories'
 import {findSeedById} from './deserialise'
 
+let uidCounter = 1
+
 function iterate(obj={}, cb) {
   Object.keys(obj).forEach(name => {
     const descriptor = obj[name]
@@ -73,12 +75,18 @@ export function defineModel({
       }
     })
 
+    Object.defineProperty(item, 'uid', {
+      value: uidCounter++,
+    })
+
 console.log('create simpleValues', seed)
     iterate(simpleValues, (descriptor, name) => {
       const {type} = descriptor
       const defaultValue = getDefaultValue(seed, name, descriptor)
       const value = isPrimitiveModelType(type)
         ? createValue(defaultValue)
+        : descriptor.canBeNull && !defaultValue
+        ? createValue(null)
         : createValue(createModel(type, defaultValue))
 
       define(item, name, {
