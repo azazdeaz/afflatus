@@ -50,28 +50,45 @@ export function defineModel({
     throw Error(`[afflatus]: A model with the type "${type}" is already defined`)
   }
 
-  factories[type] = (seed={}, parent) => {
+  factories[type] = (seed={}, firstParent) => {
     console.log('create', seed)
     const item = {}
 
     Object.defineProperty(item, 'type', {get() {return type}})
     Object.defineProperty(item, IS_MODEL, {get() {return true}})
 
-    parent = createValue(parent)
+    function getSerialisableProps(list={}) {
+      return Object.keys(list)
+        .map(key => list[key].dontSerialise ? null : key)
+        .filter(key => key !== null)
+    }
+    Object.defineProperty(item, '$serialisableProps', {
+      value: [
+        ...getSerialisableProps(simpleValues),
+        ...getSerialisableProps(arrayValues),
+      ]
+    })
+
+    firstParent = createValue(firstParent)
     Object.defineProperty(item, 'firstParent', {
-      set: parent.set,
-      get: parent.get,
+      set: firstParent.set,
+      get: firstParent.get,
     })
 
     Object.defineProperty(item, 'parent', {
       value: (type) => {
-        let result = parent
+        let parent = firstParent.get()
         if (type) {
-          while (parent.type !== type && parent.firstParent) {
-            parent = parent.firstParent
+          do {
+            if (parent.type === type) {
+              return parent
+            }
+            parent = parent.firstParent && parent.firstParent
           }
+          while (parent)
+
+          throw Error(`Can't find "${type}" parent of ${item}`)
         }
-        return result
       }
     })
 
@@ -79,7 +96,6 @@ export function defineModel({
       value: uidCounter++,
     })
 
-console.log('create simpleValues', seed)
     iterate(simpleValues, (descriptor, name) => {
       const {type} = descriptor
       const defaultValue = getDefaultValue(seed, name, descriptor)
@@ -87,7 +103,7 @@ console.log('create simpleValues', seed)
         ? createValue(defaultValue)
         : descriptor.canBeNull && !defaultValue
         ? createValue(null)
-        : createValue(createModel(type, defaultValue))
+        : createValue(createModel(type, defaultValue, item))
 
       define(item, name, {
         get: value.get,
@@ -106,7 +122,7 @@ console.log('create simpleValues', seed)
       const {type} = descriptor
       const defaultValue = getDefaultValue(seed, name, descriptor) || []
       const arraySeed = type
-        ? defaultValue.map(_seed => createModel(type, _seed))
+        ? defaultValue.map(_seed => createModel(type, _seed, item))
         : defaultValue
       const value = createArray(type, arraySeed, item)
 

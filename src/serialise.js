@@ -1,7 +1,7 @@
 import {IS_MODEL} from './core'
 
 function forEach(item, cb) {
-  Object.keys(item).forEach(key => cb(item[key], key))
+  item.$serialisableProps.forEach(key => cb(item[key], key))
 }
 
 export function serialise(rootItem) {

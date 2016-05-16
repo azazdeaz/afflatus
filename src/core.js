@@ -7,6 +7,9 @@ export const isPrimitiveModelType = type =>
   !type || (/^[a-z]/).test(type)
 
 export function reportUse(id) {
+  if (runningListeners.size === 0) {
+    return
+  }
   runningListeners.forEach(dependencies => dependencies.add(id))
 }
 
@@ -22,7 +25,7 @@ export function reportChange(id) {
 }
 
 export function createValue(value) {
-  const id = Symbol(Math.random())
+  const id = Symbol(`value-${value}-${Math.random()}`)
   return {
     get() {
       reportUse(id)
@@ -60,7 +63,7 @@ export function disposeHandler(handler) {
 }
 
 export function createComputedValue(fn) {
-  const id = Symbol()
+  const id = Symbol(`compuded-${Math.random()}`)
   let inited = false
   let value
   const update = () => {
