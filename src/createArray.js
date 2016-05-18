@@ -3,8 +3,8 @@ import {createModel} from './createModel'
 
 const protoSplice = Array.prototype.splice
 
-export function createArray(type, firstSeed=[], parent) {
-  const id = Symbol(`array-${type}-${Math.random()}`)
+export function createArray(type, firstSeed=[], parent, debug) {
+  const id = Symbol(`array-${type}-${debug}-${Math.random()}`)
   let array = patchArray(firstSeed, id)
   const isPrimitive = isPrimitiveModelType(type)
 

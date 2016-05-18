@@ -1,5 +1,8 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import {record, disposeHandler} from './core'
+
+let affID = 0
 
 export const patchReact = Component => {
   //wrap function components
@@ -11,12 +14,12 @@ export const patchReact = Component => {
   //     }
   //   }
   // }
-
+  Component.affID = affID++
   const originalRender = Component.prototype.render
   const originalComponentWillUnmount = Component.prototype.componentWillUnmount
 
   Component.prototype.render = function () {
-    console.log(`[afflatus]: render `, Component.name)
+    console.log(`[afflatus]: render `, Component.name, Component.affID)
 
     if (!this.__handleAfflatusChange) {
       this.__handleAfflatusChange = () => this.forceUpdate()
@@ -27,6 +30,8 @@ export const patchReact = Component => {
       () => result = originalRender.call(this),
       this.__handleAfflatusChange
     )
+    if (!window.affs) window.affs = {}
+    window.affs[Component.affID] = {name: Component.name, listeners: window.listeners.get(this.__handleAfflatusChange)}
     return result
   }
 

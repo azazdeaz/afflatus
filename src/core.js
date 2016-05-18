@@ -1,31 +1,48 @@
+const runningListeners = []
 const listeners = new Map()
-const runningListeners = new Map()
+const readyToFireListeners = []
+
+window.listeners = listeners
 
 export const IS_MODEL = 'isModel'
+
+let transactionLevel = 0
 
 export const isPrimitiveModelType = type =>
   !type || (/^[a-z]/).test(type)
 
 export function reportUse(id) {
-  if (runningListeners.size === 0) {
+  // console.log('reportChange', id)
+  if (runningListeners.length === 0) {
     return
   }
-  runningListeners.forEach(dependencies => dependencies.add(id))
+  const activeListener = runningListeners[runningListeners.length - 1]
+  activeListener.add(id)
 }
 
 export function reportChange(id) {
-  const handlers = []
+  console.log('reportChange', id)
+  const h=[]
   listeners.forEach((dependencies, handler) => {
     if (dependencies.has(id)) {
       listeners.delete(handler)
-      handlers.push(handler)
+      h.push(handler)
+      // readyToFireListeners.push(handler)
     }
   })
-  handlers.forEach(handler => handler())
+h.forEach(handler => handler())
+  // fireReadyListeners()
 }
 
-export function createValue(value) {
-  const id = Symbol(`value-${value}-${Math.random()}`)
+function fireReadyListeners() {
+  // if (transactionLevel === 0) {
+    readyToFireListeners.forEach(handler => handler())
+    readyToFireListeners.length = 0
+  // }
+}
+
+export function createValue(value, debug) {
+  const id = Symbol(`value-${value}-${debug}-${Math.random()}`)
   return {
     get() {
       reportUse(id)
@@ -42,9 +59,12 @@ export function createValue(value) {
 
 export function record(fn, handler) {
   const dependencies = new Set()
-  runningListeners.set(handler, dependencies)
+  runningListeners.push(dependencies)
   fn()
-  runningListeners.delete(handler)
+  if (runningListeners[runningListeners.length - 1] !== dependencies) {
+    throw Error('Nooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!')
+  }
+  runningListeners.pop()
   listeners.set(handler, dependencies)
 }
 
@@ -58,12 +78,12 @@ export function autorun(fn) {
 }
 
 export function disposeHandler(handler) {
-  runningListeners.delete(handler)
+  // runningListeners.delete(handler)
   listeners.delete(handler)
 }
 
-export function createComputedValue(fn) {
-  const id = Symbol(`compuded-${Math.random()}`)
+export function createComputedValue(fn, debug) {
+  const id = Symbol(`compuded-${debug}-${Math.random()}`)
   let inited = false
   let value
   const update = () => {
@@ -85,10 +105,14 @@ export function createComputedValue(fn) {
 }
 
 export function transaction(fn) {
-  //TODO
-  return fn()
+  transactionLevel += 1
+  const result = fn()
+  transactionLevel -= 1
+  // fireReadyListeners()
+
+  return result
 }
 
 export function getStats() {
-  return {listeners: listeners.size, runningListeners: runningListeners.size}
+  return {listeners: listeners.size, runningListeners: runningListeners.length}
 }

@@ -100,10 +100,10 @@ export function defineModel({
       const {type} = descriptor
       const defaultValue = getDefaultValue(seed, name, descriptor)
       const value = isPrimitiveModelType(type)
-        ? createValue(defaultValue)
+        ? createValue(defaultValue, name)
         : descriptor.canBeNull && !defaultValue
-        ? createValue(null)
-        : createValue(createModel(type, defaultValue, item))
+        ? createValue(null, name)
+        : createValue(createModel(type, defaultValue, item), name)
 
       define(item, name, {
         get: value.get,
@@ -113,7 +113,7 @@ export function defineModel({
 
     iterate(computedValues, (value, name) => {
       define(item, name, {
-        get: createComputedValue(value.bind(item)),
+        get: createComputedValue(value.bind(item), name),
         enumerable: false,
       })
     })
@@ -124,7 +124,7 @@ export function defineModel({
       const arraySeed = type
         ? defaultValue.map(_seed => createModel(type, _seed, item))
         : defaultValue
-      const value = createArray(type, arraySeed, item)
+      const value = createArray(type, arraySeed, item, name)
 
       define(item, name, {
         get: value.get,
