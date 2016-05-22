@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import shallowCompare from 'react-addons-shallow-compare'
 import {record, disposeHandler} from './core'
 
 let affID = 0
@@ -33,6 +34,12 @@ export const patchReact = Component => {
     if (!window.affs) window.affs = {}
     window.affs[Component.affID] = {name: Component.name, listeners: window.listeners.get(this.__handleAfflatusChange)}
     return result
+  }
+
+  if (!Component.prototype.shouldComponentUpdate) {
+    Component.prototype.shouldComponentUpdate = function (nextProps, nextState) {
+      return shallowCompare(this, nextProps, nextState)
+    }
   }
 
   Component.prototype.componentWillUnount = function (...args) {
