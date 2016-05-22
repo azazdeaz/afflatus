@@ -7,7 +7,7 @@ import {
 import {createArray} from './createArray'
 import {createModel} from './createModel'
 import {factories} from './factories'
-import {findSeedById} from './deserialise'
+import {findSeedByID, getDeserializedByID, setDeserializedByID} from './deserialise'
 
 let uidCounter = 1
 
@@ -20,7 +20,7 @@ function iterate(obj={}, cb) {
 
 function getDefaultValue(seed, name, descriptor) {
   if (Number.isFinite(seed)) {
-    seed = findSeedById(seed)
+    seed = findSeedByID(seed)
   }
 
   return seed.hasOwnProperty(name)
@@ -53,6 +53,14 @@ export function defineModel({
   factories[type] = (seed={}, firstParent) => {
     console.log('create', seed)
     const item = {}
+
+    if (Number.isFinite(seed)) {
+      const deserialised = getDeserializedByID(seed)
+      if (deserialised) {
+        return deserialised
+      }
+      setDeserializedByID(seed, item)
+    }
 
     Object.defineProperty(item, 'type', {get() {return type}})
     Object.defineProperty(item, IS_MODEL, {get() {return true}})

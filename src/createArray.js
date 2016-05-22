@@ -14,7 +14,7 @@ export function createArray(type, firstSeed=[], parent, debug) {
     },
     set(newSeed) {
       array = patchArray(newSeed, id)
-      reportChange(id)
+      reportChange(id, array)
     }
   }
 
@@ -31,7 +31,7 @@ export function createArray(type, firstSeed=[], parent, debug) {
       }
 
       if (oldItems.length > 0 || newItems.length > 0) {
-        reportChange(id)
+        reportChange(id, array)
       }
       return oldItems
     }

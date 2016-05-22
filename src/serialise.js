@@ -13,6 +13,10 @@ export function serialise(rootItem) {
   return dryList
 
   function dry(item) {
+    if (referenceList.indexOf(item) !== -1) {
+      const index = referenceList.indexOf(item)
+      return dryList[index].$id
+    }
     const $id = nextId++
     const seed = {$id}
 
@@ -22,12 +26,7 @@ export function serialise(rootItem) {
     forEach(item, (value, key) => {
       if (value && value[IS_MODEL]) {
         const index = referenceList.indexOf(value)
-        if (index >= 0) {
-          seed[key] = dryList[index].$id
-        }
-        else {
-          seed[key] = dry(value)
-        }
+        seed[key] = dry(value)
       }
       else if (value instanceof Array) {
         seed[key] = value.map(childItem => (

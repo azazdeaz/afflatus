@@ -20,8 +20,8 @@ export function reportUse(id) {
   activeListener.add(id)
 }
 
-export function reportChange(id) {
-  console.log('reportChange', id)
+export function reportChange(id, debug) {
+  console.log('reportChange', id, debug)
   const h=[]
   listeners.forEach((dependencies, handler) => {
     if (dependencies.has(id)) {
@@ -51,7 +51,7 @@ export function createValue(value, debug) {
     set(newValue) {
       if (newValue !== value) {
         value = newValue
-        reportChange(id)
+        reportChange(id, value)
       }
     }
   }
@@ -90,7 +90,7 @@ export function createComputedValue(fn, debug) {
     const newValue = fn()
     if (newValue !== value) {
       value = newValue
-      reportChange(id)
+      reportChange(id, value)
     }
   }
 
