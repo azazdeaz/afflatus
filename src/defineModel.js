@@ -3,6 +3,7 @@ import {
   createComputedValue,
   IS_MODEL,
   isPrimitiveModelType,
+  REFUSE_UPDATE,
 } from './core'
 import {createArray} from './createArray'
 import {createModel} from './createModel'
@@ -112,10 +113,18 @@ export function defineModel({
         : descriptor.canBeNull && !defaultValue
         ? createValue(null, name)
         : createValue(createModel(type, defaultValue, item), name)
+      const set = descriptor.transform
+        ? v => {
+          const transformedValue = descriptor.transform(v)
+          if (transformedValue !== REFUSE_UPDATE) {
+            value.set(transformedValue)
+          }
+        }
+        : value.set
 
       define(item, name, {
         get: value.get,
-        set: value.set,
+        set,
       })
     })
 

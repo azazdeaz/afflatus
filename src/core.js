@@ -5,6 +5,7 @@ const readyToFireListeners = []
 window.listeners = listeners
 
 export const IS_MODEL = 'isModel'
+export const REFUSE_UPDATE = Symbol('REFUSE_UPDATE')
 
 let transactionLevel = 0
 
@@ -62,7 +63,7 @@ export function record(fn, handler) {
   runningListeners.push(dependencies)
   fn()
   if (runningListeners[runningListeners.length - 1] !== dependencies) {
-    throw Error('Nooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!')
+    throw new Error('Nooooooooooooooooooooooooooooooooooooooooooooooooooooooo!')
   }
   runningListeners.pop()
   listeners.set(handler, dependencies)
