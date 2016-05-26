@@ -24,6 +24,7 @@ export const patchReact = Component => {
 
     if (!this.__handleAfflatusChange) {
       this.__handleAfflatusChange = () => this.forceUpdate()
+      this.__handleAfflatusChange.canWait = true
     }
 
     let result

@@ -27,19 +27,26 @@ export function reportChange(id, debug) {
   listeners.forEach((dependencies, handler) => {
     if (dependencies.has(id)) {
       listeners.delete(handler)
-      h.push(handler)
-      // readyToFireListeners.push(handler)
+      if (handler.canWait) {
+        if (readyToFireListeners.indexOf(handler) === -1) {
+          readyToFireListeners.push(handler)
+        }
+      }
+      else {
+        h.push(handler)
+      }
     }
   })
 h.forEach(handler => handler())
-  // fireReadyListeners()
+  fireReadyListeners()
 }
 
 function fireReadyListeners() {
-  // if (transactionLevel === 0) {
-    readyToFireListeners.forEach(handler => handler())
-    readyToFireListeners.length = 0
-  // }
+  if (transactionLevel === 0) {
+    readyToFireListeners
+      .splice(0)
+      .forEach(handler => handler())
+  }
 }
 
 export function createValue(value, debug) {
@@ -63,7 +70,7 @@ export function record(fn, handler) {
   runningListeners.push(dependencies)
   fn()
   if (runningListeners[runningListeners.length - 1] !== dependencies) {
-    throw new Error('Nooooooooooooooooooooooooooooooooooooooooooooooooooooooo!')
+    throw Error('Nooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!')
   }
   runningListeners.pop()
   listeners.set(handler, dependencies)
@@ -109,7 +116,7 @@ export function transaction(fn) {
   transactionLevel += 1
   const result = fn()
   transactionLevel -= 1
-  // fireReadyListeners()
+  fireReadyListeners()
 
   return result
 }
