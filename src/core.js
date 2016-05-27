@@ -45,7 +45,8 @@ function fireReadyListeners() {
   if (transactionLevel === 0) {
     readyToFireListeners
       .splice(0)
-      .forEach(handler => handler())
+      .sort((a, b) => (a.afflatusLevel || 0) - (b.afflatusLevel || 0))
+      .forEach(handler => {console.log('afflatusLevel', handler.afflatusLevel); handler()})
   }
 }
 

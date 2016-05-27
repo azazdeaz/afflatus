@@ -19,12 +19,35 @@ export const patchReact = Component => {
   const originalRender = Component.prototype.render
   const originalComponentWillUnmount = Component.prototype.componentWillUnmount
 
+  const p = Component.prototype
+  Component.contextTypes = {
+    ...Component.contextTypes,
+    afflatusLevel: React.PropTypes.number
+  }
+  Component.childContextTypes = {
+    ...Component.childContextTypes,
+    afflatusLevel: React.PropTypes.number
+  }
+
+  const originalGetChildContext = p.getChildContext
+  p.getChildContext = function () {
+    const context = originalGetChildContext
+      ? originalGetChildContext.call(this)
+      : {}
+
+    return {
+      ...context,
+      afflatusLevel: (this.context.afflatusLevel || 0) + 1
+    }
+  }
+
   Component.prototype.render = function () {
     console.log(`[afflatus]: render `, Component.name, Component.affID)
 
     if (!this.__handleAfflatusChange) {
       this.__handleAfflatusChange = () => this.forceUpdate()
       this.__handleAfflatusChange.canWait = true
+      this.__handleAfflatusChange.afflatusLevel = this.context.afflatusLevel
     }
 
     let result
