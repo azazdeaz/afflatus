@@ -23,7 +23,9 @@ export function createArray(type, firstSeed=[], parent, debug) {
     const getters = ['find', 'findIndex', 'forEach', 'map', 'slice']
 
     function splice(start, deleteCount, ...newItems) {
-      const oldItems = protoSplice.call(array, start, deleteCount, ...newItems)
+      const oldItems = deleteCount === undefined
+        ? protoSplice.call(array, start) //splice takes deleteCount=undefined as 0
+        : protoSplice.call(array, start, deleteCount, ...newItems)
 
       if (!isPrimitive) {
         oldItems.forEach(item => item.firstParent = null)
@@ -58,6 +60,11 @@ export function createArray(type, firstSeed=[], parent, debug) {
     array.getLength = () => {
       reportUse(id)
       return array.length
+    }
+
+    array.get = index => {
+      reportUse(id)
+      return array[index]
     }
 
     return array
