@@ -86,17 +86,12 @@ export function defineModel({
 
     Object.defineProperty(item, 'parent', {
       value: (type) => {
-        let parent = firstParent.get()
-        if (type) {
-          do {
-            if (parent.type === type) {
-              return parent
-            }
-            parent = parent.firstParent && parent.firstParent
+        const parent = firstParent.get()
+        if (type && parent) {
+          if (parent.type === type) {
+            return parent
           }
-          while (parent)
-
-          throw Error(`Can't find "${type}" parent of ${item}`)
+          return parent.parent(type)
         }
       }
     })
