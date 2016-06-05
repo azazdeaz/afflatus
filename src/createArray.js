@@ -20,7 +20,17 @@ export function createArray(type, firstSeed=[], parent, debug) {
 
   function patchArray(seed) {
     const array = seed.slice()
-    const getters = ['find', 'findIndex', 'forEach', 'map', 'slice', 'some', 'every']
+    const getters = [
+      'find',
+      'findIndex',
+      'forEach',
+      'map',
+      'slice',
+      'some',
+      'every',
+      'filter',
+      'includes',
+    ]
 
     function splice(start, deleteCount, ...newItems) {
       const oldItems = deleteCount === undefined
