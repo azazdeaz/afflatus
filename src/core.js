@@ -22,7 +22,9 @@ export function reportUse(id) {
 }
 
 export function reportChange(id, debug) {
-  console.log('reportChange', id, debug)
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('reportChange', id, debug)
+  }
   const h=[]
   listeners.forEach((dependencies, handler) => {
     if (dependencies.has(id)) {
@@ -46,7 +48,7 @@ function fireReadyListeners() {
     readyToFireListeners
       .splice(0)
       .sort((a, b) => (a.afflatusLevel || 0) - (b.afflatusLevel || 0))
-      .forEach(handler => {console.log('afflatusLevel', handler.afflatusLevel); handler()})
+      .forEach(handler => handler())
   }
 }
 

@@ -52,7 +52,9 @@ export function defineModel({
   }
 
   factories[type] = (seed={}, firstParent) => {
-    console.log('create', seed)
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('create', seed)
+    }
     const item = {}
 
     if (Number.isFinite(seed)) {

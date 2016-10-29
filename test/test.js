@@ -88,9 +88,7 @@ describe('afflatus', () => {
 
     item.bar.push(4)
     const seed = serialise(item)
-    console.log('seed', seed)
     const seed2 = serialise(deserialise(seed))
-    console.log('seed2', seed2)
     expect(seed).to.deep.equal(seed2)
   })
 })

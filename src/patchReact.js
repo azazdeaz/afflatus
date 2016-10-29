@@ -42,7 +42,9 @@ export const patchReact = Component => {
   }
 
   Component.prototype.render = function () {
-    console.log(`[afflatus]: render `, Component.name, Component.affID)
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`[afflatus]: render `, Component.name, Component.affID)
+    }
 
     if (!this.__handleAfflatusChange) {
       this.__handleAfflatusChange = () => this.forceUpdate()
